@@ -9,15 +9,15 @@ async def play_logs(message, streamtype):
     if await is_on_off(2):
         logger_text = f"""
 ╔════❰𝐏𝐋𝐀𝐘𝐈𝐍𝐆❱═══❍⊱❁۪۪
-◈ <b>{app.mention} ᴘʟᴀʏ ʟᴏɢ</b>
-◈ 𝐂𝐡𝐚𝐭 ➪ **{message.chat.title}**
-◈ 𝐂𝐡𝐚𝐭 𝐈𝐝 ➪ `{message.chat.id}`
-◈ 𝐔𝐬𝐞𝐫 ➪ **{message.from_user.mention}**
-◈ 𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞 ➪ **@{message.from_user.username}**
-◈ 𝐈𝐝 ➪ `{message.from_user.id}`
-◈ 𝐂𝐡𝐚𝐭 𝐋𝐢𝐧𝐤 ➪ **{chatusername}**
-◈ 𝐒𝐞𝐚𝐫𝐜𝐡𝐞𝐝 ➪ `{message.text.split(None, 1)[1]}`
-◈ 𝐁𝐲 ➪ **{streamtype} ▄ █ ▄ █ ▄**
+<b>{app.mention} ᴘʟᴀʏ ʟᴏɢ</b>
+<b>ᴄʜᴀᴛ ɪᴅ :</b> <code>{message.chat.id}</code>
+<b>ᴄʜᴀᴛ ɴᴀᴍᴇ :</b> {message.chat.title}
+<b>ᴄʜᴀᴛ ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.chat.username}
+<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>
+<b>ɴᴀᴍᴇ :</b> {message.from_user.mention}
+<b>ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}
+<b>ǫᴜᴇʀʏ :</b> <code>{message.text.split(None, 1)[1]}</code>
+<b>sᴛʀᴇᴀᴍᴛʏᴘᴇ :</b> {streamtype}
 ╚═══❰ #𝐍𝐞𝐰𝐒𝐨𝐧𝐠 ❱══❍⊱❁۪۪"""
         if message.chat.id != LOGGER_ID:
             try:
