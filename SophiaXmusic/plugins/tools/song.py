@@ -51,7 +51,7 @@ async def song(client: app, message: Message):
 ###### INSTAGRAM REELS DOWNLOAD
 
 
-@app.on_message(filters.command(["ig","reel"], ["/", "!", "."]))
+@app.on_message(filters.command(["ig"], ["/", "!", "."]))
 async def download_instareels(c: app, m: Message):
     try:
         reel_ = m.command[1]
@@ -75,7 +75,7 @@ async def download_instareels(c: app, m: Message):
                 await m.reply_document(Reel_)
                 return
             except Exception:
-                await m.reply_text("I am unable to reach to this reel.")
+                await m.reply_text("I am unable to reach to this reel.\nthis reels privite try to use /reel")
 
 
 
@@ -96,6 +96,6 @@ async def instagram_reel(client, message):
             else:
                 await message.reply("No video found in the response. may be accountbis private.")
         else:
-            await message.reply("Request was not successful.")
+            await message.reply("Request was not successful.\nthis reels privite try to use /ig")
     else:
         await message.reply("Please provide a valid Instagram URL using the /reel command.")
