@@ -8,7 +8,7 @@ load_dotenv()
 
 API_ID = int(getenv("API_ID","6435225"))
 API_HASH = getenv("API_HASH","4e984ea35f854762dcde906dce426c2d")
-BOT_TOKEN = getenv("BOT_TOKEN","5998139371:AAEpo8FJl8kRubKdgF2GzYBeJu6m_4JRsNk")
+BOT_TOKEN = getenv("BOT_TOKEN","5998139371:AAE9TXyrbJpODDPC95sICPBNtYYJxbR-WVk")
 BOT_USERNAME = getenv("BOT_USERNAME" , "Sophia_x_MusicBot")
 ASSUSERNAME = getenv("ASSUSERNAME" , "Sophia_Assistans")
 MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://ambot:ambot@ambot.onafiyb.mongodb.net/?retryWrites=true&w=majority")
