@@ -4,6 +4,7 @@ from pyrogram.types import InlineKeyboardButton
 
 from SophiaXmusic.utils.formatters import time_to_seconds
 
+OWNER_ID = "6109442416"
 
 def track_markup(_, videoid, user_id, channel, fplay):
     buttons = [
@@ -86,9 +87,7 @@ def stream_markup_timer(_, chat_id, played, dur):
 
                 text="💕 ᴏᴡɴᴇʀ",
 
-                url=f"https://t.me/sam_loveall",
-
-            ),
+                url=f"tg://user?id={OWNER_ID}"),
         ],
 
         [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")],
@@ -125,9 +124,7 @@ def stream_markup(_, chat_id):
 
                 text="💕 ᴏᴡɴᴇʀ",
 
-                url=f"https://t.me/sam_loveall",
-
-            ),
+                url=f"tg://user?id={OWNER_ID}"),
         ],
         [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")],
     ]
