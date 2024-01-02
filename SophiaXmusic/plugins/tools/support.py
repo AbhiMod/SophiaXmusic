@@ -1,6 +1,6 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
-import config import 
+import config  
 from SophiaXmusic import app
 
 OP = "-1001841879487"
