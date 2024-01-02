@@ -25,6 +25,7 @@ from pyrogram.types import (
     InlineKeyboardButton,
 )
 import random
+from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
 
 mongo = MongoCli(MONGO_DB_URI)
 
@@ -126,7 +127,6 @@ async def send_msg(user_id, message):
 
 
 @AM.on_message(filters.command("gcast") & SUDOERS)
-@language
 async def broadcast(_, message):
     if not message.reply_to_message:
         await message.reply_text("ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀsᴛ ɪᴛ.")
