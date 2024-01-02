@@ -1,10 +1,7 @@
-import asyncio
-
 from pyrogram import filters
 from pyrogram.enums import ChatMembersFilter
 from pyrogram.errors import FloodWait
-
-from SophiaXmusic import app
+from SophiaXmusic import app as AM
 from SophiaXmusic.misc import SUDOERS
 from SophiaXmusic.utils.database import (
     get_active_chats,
@@ -16,154 +13,220 @@ from SophiaXmusic.utils.database import (
 from SophiaXmusic.utils.decorators.language import language
 from SophiaXmusic.utils.formatters import alpha_to_int
 from config import adminlist
+import asyncio
+from pyrogram import *
+from pyrogram.types import *
+from config import MONGO_DB_URI, OWNER_ID
+from motor.motor_asyncio import AsyncIOMotorClient as MongoCli
+from pyrogram.types import (
+    Message,
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
+import random
 
-IS_BROADCASTING = False
+mongo = MongoCli(MONGO_DB_URI)
+
+db = mongo.chats
+db = db.chatsdb
+#User 
+db = mongo.users
+db = db.users
+
+AM_PIC = [
+    "https://telegra.ph/file/7c25ef427c9f3cded5577.jpg",
+    "https://telegra.ph/file/625d235cc0a22fb8525b5.jpg",
+    "https://telegra.ph/file/1c62254d59baf7f968ba7.jpg",
+    "https://telegra.ph/file/7a0553bd4664486ab3008.jpg",
+    "https://telegra.ph/file/7b4dfa606e6f23961d30e.jpg",
+    "https://telegra.ph/file/2773dec98d87b8562618c.jpg",
+    "https://telegra.ph/file/80353d02e0368b71d2666.jpg",
+    "https://telegra.ph/file/6e5331dc4bef87464ea1c.jpg",
+    "https://telegra.ph/file/199a2e44cb8e77bb21b34.jpg",
+    "https://telegra.ph/file/8371bcd8952d089f9ec05.jpg",
+    "https://telegra.ph/file/f970e559dd1bb96fced1a.jpg",
+    "https://telegra.ph/file/59a305f8ce0c4e85949cc.jpg"
+]
+
+#CHATGROUP
+
+async def get_chats():
+  chat_list = []
+  async for chat in db.chats.find({"chat": {"$lt": 0}}):
+    chat_list.append(chat['chat'])
+  return chat_list
+
+async def get_chat(chat):
+  chats = await get_chats()
+  if chat in chats:
+    return True
+  else:
+    return False
+
+async def add_chat(chat):
+  chats = await get_chats()
+  if chat in chats:
+    return
+  else:
+    await db.chats.insert_one({"chat": chat})
+
+async def del_chat(chat):
+  chats = await get_chats()
+  if not chat in chats:
+    return
+  else:
+    await db.chats.delete_one({"chat": chat})
+
+#USERS
+async def get_users():
+  user_list = []
+  async for user in db.users.find({"user": {"$gt": 0}}):
+    user_list.append(user['user'])
+  return user_list
 
 
-@app.on_message(filters.command("broadcast") & SUDOERS)
+async def get_user(user):
+  users = await get_users()
+  if user in users:
+    return True
+  else:
+    return False
+
+async def add_user(user):
+  users = await get_users()
+  if user in users:
+    return
+  else:
+    await db.users.insert_one({"user": user})
+
+
+async def del_user(user):
+  users = await get_users()
+  if not user in users:
+    return
+  else:
+    await db.users.delete_one({"user": user})
+      
+      #GCAST
+async def send_msg(user_id, message):
+    try:
+        await message.copy(chat_id=user_id)
+    except FloodWait as e:
+        await asyncio.sleep(e.x)
+        return send_msg(user_id, message)
+    except InputUserDeactivated:
+        return 400, f"{user_id} : deactivated\n"
+    except UserIsBlocked:
+        return 400, f"{user_id} : blocked the bot\n"
+    except PeerIdInvalid:
+        return 400, f"{user_id} : user id invalid\n"
+    except Exception:
+        return 500, f"{user_id} : {traceback.format_exc()}\n"
+
+
+@AM.on_message(filters.command("gcast") & SUDOERS)
 @language
-async def braodcast_message(client, message, _):
-    global IS_BROADCASTING
-    if message.reply_to_message:
-        x = message.reply_to_message.id
-        y = message.chat.id
+async def broadcast(_, message):
+    if not message.reply_to_message:
+        await message.reply_text("ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀsᴛ ɪᴛ.")
+        return    
+    exmsg = await message.reply_text("sᴛᴀʀᴛᴇᴅ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ!")
+    all_chats = (await get_chats()) or {}
+    all_users = (await get_users()) or {}
+    done_chats = 0
+    done_users = 0
+    failed_chats = 0
+    failed_users = 0
+    for chat in all_chats:
+        try:
+            await send_msg(chat, message.reply_to_message)
+            done_chats += 1
+            await asyncio.sleep(0.1)
+        except Exception:
+            pass
+            failed_chats += 1
+
+    for user in all_users:
+        try:
+            await send_msg(user, message.reply_to_message)
+            done_users += 1
+            await asyncio.sleep(0.1)
+        except Exception:
+            pass
+            failed_users += 1
+    if failed_users == 0 and failed_chats == 0:
+        await exmsg.edit_text(
+            f"**sᴜᴄᴄᴇssғᴜʟʟʏ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ✅**\n\n**sᴇɴᴛ ᴍᴇssᴀɢᴇ ᴛᴏ** `{done_chats}` **ᴄʜᴀᴛs ᴀɴᴅ** `{done_users}` **ᴜsᴇʀs**",
+        )
     else:
-        if len(message.command) < 2:
-            return await message.reply_text(_["broad_2"])
-        query = message.text.split(None, 1)[1]
-        if "-pin" in query:
-            query = query.replace("-pin", "")
-        if "-nobot" in query:
-            query = query.replace("-nobot", "")
-        if "-pinloud" in query:
-            query = query.replace("-pinloud", "")
-        if "-assistant" in query:
-            query = query.replace("-assistant", "")
-        if "-user" in query:
-            query = query.replace("-user", "")
-        if query == "":
-            return await message.reply_text(_["broad_8"])
-
-    IS_BROADCASTING = True
-    await message.reply_text(_["broad_1"])
-
-    if "-nobot" not in message.text:
-        sent = 0
-        pin = 0
-        chats = []
-        schats = await get_served_chats()
-        for chat in schats:
-            chats.append(int(chat["chat_id"]))
-        for i in chats:
-            try:
-                m = (
-                    await app.forward_messages(i, y, x)
-                    if message.reply_to_message
-                    else await app.send_message(i, text=query)
-                )
-                if "-pin" in message.text:
-                    try:
-                        await m.pin(disable_notification=True)
-                        pin += 1
-                    except:
-                        continue
-                elif "-pinloud" in message.text:
-                    try:
-                        await m.pin(disable_notification=False)
-                        pin += 1
-                    except:
-                        continue
-                sent += 1
-                await asyncio.sleep(0.2)
-            except FloodWait as fw:
-                flood_time = int(fw.value)
-                if flood_time > 200:
-                    continue
-                await asyncio.sleep(flood_time)
-            except:
-                continue
-        try:
-            await message.reply_text(_["broad_3"].format(sent, pin))
-        except:
-            pass
-
-    if "-user" in message.text:
-        susr = 0
-        served_users = []
-        susers = await get_served_users()
-        for user in susers:
-            served_users.append(int(user["user_id"]))
-        for i in served_users:
-            try:
-                m = (
-                    await app.forward_messages(i, y, x)
-                    if message.reply_to_message
-                    else await app.send_message(i, text=query)
-                )
-                susr += 1
-                await asyncio.sleep(0.2)
-            except FloodWait as fw:
-                flood_time = int(fw.value)
-                if flood_time > 200:
-                    continue
-                await asyncio.sleep(flood_time)
-            except:
-                pass
-        try:
-            await message.reply_text(_["broad_4"].format(susr))
-        except:
-            pass
-
-    if "-assistant" in message.text:
-        aw = await message.reply_text(_["broad_5"])
-        text = _["broad_6"]
-        from SophiaXmusic.core.userbot import assistants
-
-        for num in assistants:
-            sent = 0
-            client = await get_client(num)
-            async for dialog in client.get_dialogs():
-                try:
-                    await client.forward_messages(
-                        dialog.chat.id, y, x
-                    ) if message.reply_to_message else await client.send_message(
-                        dialog.chat.id, text=query
-                    )
-                    sent += 1
-                    await asyncio.sleep(3)
-                except FloodWait as fw:
-                    flood_time = int(fw.value)
-                    if flood_time > 200:
-                        continue
-                    await asyncio.sleep(flood_time)
-                except:
-                    continue
-            text += _["broad_7"].format(num, sent)
-        try:
-            await aw.edit_text(text)
-        except:
-            pass
-    IS_BROADCASTING = False
+        await exmsg.edit_text(
+            f"**sᴜᴄᴄᴇssғᴜʟʟʏ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ✅**\n\n**sᴇɴᴛ ᴍᴇssᴀɢᴇ ᴛᴏ** `{done_chats}` **ᴄʜᴀᴛs** `{done_users}` **ᴜsᴇʀs**\n\n**ɴᴏᴛᴇ:-** `ᴅᴜᴇ ᴛᴏ sᴏᴍᴇ ɪssᴜᴇ ᴄᴀɴ'ᴛ ᴀʙʟᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀsᴛ` `{failed_users}` **ᴜsᴇʀs ᴀɴᴅ** `{failed_chats}` **ᴄʜᴀᴛs**",
+        )
 
 
-async def auto_clean():
-    while not await asyncio.sleep(10):
-        try:
-            served_chats = await get_active_chats()
-            for chat_id in served_chats:
-                if chat_id not in adminlist:
-                    adminlist[chat_id] = []
-                    async for user in app.get_chat_members(
-                        chat_id, filter=ChatMembersFilter.ADMINISTRATORS
-                    ):
-                        if user.privileges.can_manage_video_chats:
-                            adminlist[chat_id].append(user.user.id)
-                    authusers = await get_authuser_names(chat_id)
-                    for user in authusers:
-                        user_id = await alpha_to_int(user)
-                        adminlist[chat_id].append(user_id)
-        except:
-            continue
+
+@AM.on_message(filters.command("announce") & filters.user(OWNER_ID))
+async def announced(_, message):
+    if message.reply_to_message:
+      to_send=message.reply_to_message.id
+    if not message.reply_to_message:
+      return await message.reply_text("Reply To Some Post To Broadcast")
+    chats = await get_chats() or []
+    users = await get_users() or []
+    print(chats)
+    print(users)
+    failed = 0
+    for chat in chats:
+      try:
+        await AM.forward_messages(chat_id=int(chat), from_chat_id=message.chat.id, message_ids=to_send)
+        await asyncio.sleep(1)
+      except Exception:
+        failed += 1
+    
+    failed_user = 0
+    for user in users:
+      try:
+        await AM.forward_messages(chat_id=int(user), from_chat_id=message.chat.id, message_ids=to_send)
+        await asyncio.sleep(1)
+      except Exception as e:
+        failed_user += 1
 
 
-asyncio.create_task(auto_clean())
+    await message.reply_text("Bʀᴏᴀᴅᴄᴀsᴛ ᴄᴏᴍᴘʟᴇᴛᴇ. {} ɢʀᴏᴜᴘs ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴍᴇssᴀɢᴇ, ᴘʀᴏʙᴀʙʟʏ ᴅᴜᴇ ᴛᴏ ʙᴇɪɴɢ ᴋɪᴄᴋᴇᴅ. {} ᴜsᴇʀs ғᴀɪʟᴇᴅ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴍᴇssᴀɢᴇ, ᴘʀᴏʙᴀʙʟʏ ᴅᴜᴇ ᴛᴏ ʙᴇɪɴɢ ʙᴀɴɴᴇᴅ. .".format(failed, failed_user))
+
+#DBSAVE
+
+@AM.on_message(group=10)
+async def chat_watcher_func(_, message):
+    try:
+        if message.from_user:
+            us_in_db = await get_user(message.from_user.id)
+            if not us_in_db:
+                await add_user(message.from_user.id)
+
+        chat_id = (message.chat.id if message.chat.id != message.from_user.id else None)
+
+        if not chat_id:
+            return
+
+        in_db = await get_chat(chat_id)
+        if not in_db:
+            await add_chat(chat_id)
+    except:
+        pass
+
+
+
+@AM.on_message(filters.command("stats") & filters.user(OWNER_ID))
+async def stats(cli: Client, message: Message):
+    users = len(await get_users())
+    chats = len(await get_chats())
+    await message.reply_photo(
+        photo=random.choice(AM_PIC),
+        caption=f"""**ᴛᴏᴛᴀʟ sᴛᴀᴛs ᴏғ** {(await cli.get_me()).mention} :
+
+➻ ᴄʜᴀᴛs : {chats}
+➻ ᴜsᴇʀs : {users}
+"""
+    )
