@@ -4,6 +4,10 @@ from SophiaXmusic import app
 from pyrogram import Client
 from pyrogram import filters 
 from pyrogram.types import Message
+from SophiaXmusic.core.userbot import assistants
+from SophiaXmusic.utils.database import get_served_chats, get_served_users, get_sudoers
+from SophiaXmusic.misc import SUDOERS, mongodb
+from SophiaXmusic.plugins import ALL_MODULES
 
 start_time = time.time()
 
@@ -23,10 +27,12 @@ def time_formatter(milliseconds):
         return tmp[:-1]
     return tmp
 
-
+served_chats = len(await get_served_chats())
+served_users = len(await get_served_users())
+ASSS =  len(assistants)
 @app.on_message(filters.command("bot"))
 async def activevc(_, message: Message):
     uptime = time_formatter((time.time() - start_time) * 1000)
     cpu = psutil.cpu_percent()
-    TEXT = f"**ᴜᴘᴛɪᴍᴇ** : {uptime} | **ᴄᴘᴜ** : {cpu}%"
+    TEXT = f"**ᴜᴘᴛɪᴍᴇ** : {uptime} | **ᴄᴘᴜ** : {cpu}% | **ᴀꜱꜱɪꜱᴛᴀɴᴛ** : {ASSS}"
     await message.reply(TEXT)
