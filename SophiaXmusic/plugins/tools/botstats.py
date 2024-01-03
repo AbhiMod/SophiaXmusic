@@ -34,5 +34,5 @@ async def activevc(_, message: Message):
     cpu = psutil.cpu_percent()
     served_chats = len(await get_served_chats())
     served_users = len(await get_served_users())
-    TEXT = f"**ᴜᴘᴛɪᴍᴇ** : {uptime} | **ᴄᴘᴜ** : {cpu}% | **ᴀꜱꜱɪꜱ ɪᴅꜱ**:{len(assistants)}"
+    TEXT = f"**ᴜᴘᴛɪᴍᴇ** : {uptime} | **ᴄᴘᴜ** : {cpu}% | **ᴀꜱꜱɪꜱ ɪᴅꜱ**: {len(assistants)}"
     await message.reply(TEXT)
