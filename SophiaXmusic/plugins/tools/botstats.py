@@ -27,11 +27,12 @@ def time_formatter(milliseconds):
         return tmp[:-1]
     return tmp
 
-served_chats = len(await get_served_chats())
-served_users = len(await get_served_users())
+
 @app.on_message(filters.command("bot"))
 async def activevc(_, message: Message):
     uptime = time_formatter((time.time() - start_time) * 1000)
     cpu = psutil.cpu_percent()
-    TEXT = f"**ᴜᴘᴛɪᴍᴇ** : {uptime} | **ᴄᴘᴜ** : {cpu}% | **ᴀꜱꜱɪꜱᴛᴀɴᴛ** : {len(assistants)}"
+    served_chats = len(await get_served_chats())
+    served_users = len(await get_served_users())
+    TEXT = f"**ᴜᴘᴛɪᴍᴇ** : {uptime} | **ᴄᴘᴜ** : {cpu}% | **ᴀꜱꜱɪꜱᴛᴀɴᴛ ɪᴅꜱ** : {len(assistants)}"
     await message.reply(TEXT)
