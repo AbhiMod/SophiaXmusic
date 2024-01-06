@@ -94,11 +94,8 @@ async def start_pm(client, message: Message, _):
                 )
     else:
         out = private_panel(_)
-        await message.reply_photo(
-            random.choice(YUMI_PICS),
-            caption=_["start_2"].format(message.from_user.mention, app.mention),
-            reply_markup=InlineKeyboardMarkup(out),
-        )
+        await message.reply_sticker("CAACAgQAAxkBAAEGNCdlmOVoVdzYjXDhFD-RBU4NEfAmGQACLwwAAuqTAVKXwqXcqn7CKDQE")
+         
         if await is_on_off(2):
             return await app.send_message(
                 chat_id=config.LOGGER_ID,
